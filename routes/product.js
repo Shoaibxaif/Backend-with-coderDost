@@ -5,11 +5,11 @@ const ProductController = require('../controller/product')
 
 
 router
-.post('/products', ProductController.CreateModel)
-.get('/products', ProductController.getAllModels)
-.get('/products/:id', ProductController.getModelById)
-.put('/products/:id', ProductController.updateModel)
-.patch('/products/:id', ProductController.updatePartialModel)
-.delete('/products/:id', ProductController.deleteModel);
+.post('/', ProductController.CreateModel)
+.get('/', ProductController.getAllModels)
+.get('/:id', ProductController.getModelById)
+.put('/:id', ProductController.updateModel)
+.patch('/:id', ProductController.updatePartialModel)
+.delete('/:id', ProductController.deleteModel);
 
 exports.router = router;

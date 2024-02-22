@@ -1,45 +1,72 @@
-const fs = require('fs');
-const data = JSON.parse(fs.readFileSync('./public/data.json', 'utf-8'));
-const products = data.products;
+const fs = require("fs");
+const model = require("../model/product");
+const Product = model.Product;
 
+//CReate
 exports.CreateModel = (req, res) => {
-    console.log(req.body);
-    products.push(req.body);
+  const product = new Product(req.body);
+  console.log(req.body);
+
+  product
+    .save()
+    .then((savedProduct) => {
+      res.status(201).json(savedProduct);
+    })
+    .catch((err) => {
+      console.error("Error saving product:", err);
+      res.status(500).json({ error: "Error saving product" });
+    });
+};
+
+//Read
+exports.getAllModels = (req, res) => {
+  Product.find()
+    .then((products) => {
+      res.json(products);
+    })
+    .catch((err) => {
+      console.error("Error fetching products:", err);
+      res.status(500).json({ error: "Error fetching products" });
+    });
+};
+
+exports.getModelById = async (req, res) => {
+  const id = req.params.id;
+  const product = await Product.findById(id);
+  res.json(product);
+};
+
+exports.updateModel = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const doc = await Product.findOneAndReplace({ _id: id }, req.body);
+    res.status(201).json(doc);
+  } catch (err) {
+    console.log(err);
+    res.status(400).send("Update failed");
+  }
+};
+
+exports.updatePartialModel = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const doc = await Product.findOneAndUpdate({ _id: id }, req.body);
     res.status(201).json(req.body);
+  } catch (err) {
+    console.log(err);
+    res.status(400).send("Update failed");
   }
+};
 
+exports.deleteModel = async (req, res) => {
+  const id = req.params.id;
+  
+  try {
+    const doc = await Product.findOneAndDelete({ _id: id }, req.body);
+    res.status(201).json({message : "Product is Deleted"});
 
-  exports.getAllModels = (req, res) => {
-    res.json(products);
+  } catch (err) {
+    console.log(err);
+    res.status(400).send("Delete operation failed");
   }
-  
-  
-exports.getModelById = (req, res) => {
-    const id = +req.params.id;
-    const product = products.find(p => p.id === id);
-    res.json(product);
-  }
-  
-exports.updateModel = (req, res) => {
-    const id = +req.params.id;
-    const productIndex = products.findIndex(p => p.id === id);
-    products.splice(productIndex, 1, { ...req.body, id: id });
-    res.status(201).json();
-  }
-  
-  exports.updatePartialModel = (req, res) => {
-    const id = +req.params.id;
-    const productIndex = products.findIndex(p => p.id === id);
-    const product = products[productIndex];
-    products.splice(productIndex, 1, { ...product, ...req.body });
-    res.status(201).json();
-  }
-  
-exports.deleteModel = (req, res) => {
-    const id = +req.params.id;
-    const productIndex = products.findIndex(p => p.id === id);
-    const product = products[productIndex];
-    products.splice(productIndex, 1);
-    res.status(201).json(product);
-  }
-  
+};
